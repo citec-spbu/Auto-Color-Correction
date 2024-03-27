@@ -1,12 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Image Processing with WebGL</title>
-    </head>
-    <body>
-        <input type="file" id="image-input">
-        <canvas id="webgl-canvas"></canvas>
-        <script src="script.js"></script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Image Processing</title>
+    <style>
+        #canvas-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 5%;
+        }
+        canvas {
+            border: 1px solid black;
+            height: 800px;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="imageInput" accept="image/*">
+    <button id="processButton">Process Image</button>
+
+    <div id="canvas-container">
+        <canvas id="originalCanvas"></canvas>
+        <canvas id="processedCanvas"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>

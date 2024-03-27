@@ -1,14 +1,50 @@
-const canvas = document.getElementById("webgl-canvas");
-const gl = canvas.getContext("webgl");
 
-if (gl === null) {
-  alert(
-    "Unable to initialize WebGL. Your browser or machine may not support it."
-  );
+function loadImage(input, canvas, drawingFunction) {
+  const file = input.files[0];
+  if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+          const image = new Image();
+          image.onload = function() {
+              // Подгонка canvas под соотношение сторон изображения
+              var ratio = image.width / image.height;
+              canvas.width = canvas.height * ratio;
+
+              drawingFunction(canvas, image);
+          };
+          image.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+  }
 }
 
+function drawImage(canvas, image) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+}
+
+document.getElementById('imageInput').addEventListener('change', function() {
+  loadImage(this, document.getElementById('originalCanvas'), drawImage);
+});
  
-function imageProcessing(gl, image) {
+document.getElementById('processButton').addEventListener('click', function() {
+  loadImage(document.getElementById('imageInput'), document.getElementById('processedCanvas'), processImage)
+});
+
+
+function processImage(canvas, image) {
+  
+  // Инициализация WebGL
+  const webGLcanvas = canvas;
+  const gl = webGLcanvas.getContext("webgl");
+
+  if (gl === null) {
+    alert(
+      "Невозможно инициализировать WebGL. Ваш браузер или компьютер могут его не поддерживать."
+    );
+  }
+
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   gl.clearColor(1.0, 0.8, 0.1, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -25,7 +61,7 @@ function imageProcessing(gl, image) {
     }
   `;
   
-  
+  // Алгоритм обработки располагается здесь
   const fragShaderSourse = `
     precision mediump float;
   
@@ -59,7 +95,7 @@ function imageProcessing(gl, image) {
   
   gl.useProgram(program);
 
-  // Создаём прямоугольник для отображения
+  // Создание прямоугольник для отображения текстуры
   const positionLocation = gl.getAttribLocation(program, "position");
   const vertexBuffer = gl.createBuffer();
   
@@ -93,22 +129,3 @@ function imageProcessing(gl, image) {
   // Отрисовка
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
-
-// Загрузка изображения
-const imageInput = document.getElementById("image-input");
-const imageContainer = document.getElementById("image-container");
-
-imageInput.addEventListener("change", function() {
-  const file = this.files[0];
-
-  const reader = new FileReader();
-  reader.onload = function() {
-    const image = new Image();
-    image.onload = function() {
-      imageProcessing(gl, image);
-    };
-    image.src = reader.result;
-  };
-
-  reader.readAsDataURL(file);
-});
